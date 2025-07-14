@@ -53,12 +53,14 @@ func doOutput(ctx context.Context, config *Configuration, output Output) error {
 	customExpander.SetVar("VERSION", os.Getenv("VERSION"))
 	customExpander.SetVar("ARCH", output.Arch)
 
-	downloadUrl := output.Url
-	if downloadUrl == "" {
-		downloadUrl = config.DownloadUrlTemplate
+	downloadUrlTemplate := output.Download.UrlTemplate
+	if downloadUrlTemplate == "" {
+		downloadUrlTemplate = config.Download.UrlTemplate
 	}
-	downloadUrl1 := customExpander.Expand(downloadUrl)
-	cachePath, err := download(ctx, downloadUrl1)
+	downloadCustomExpander := customExpander.Clone()
+	downloadCustomExpander.SetVars(output.Download.Env)
+	downloadUrl := downloadCustomExpander.Expand(downloadUrlTemplate)
+	cachePath, err := download(ctx, downloadUrl)
 	if err != nil {
 		return err
 	}
@@ -94,13 +96,20 @@ func doOutput(ctx context.Context, config *Configuration, output Output) error {
 	}
 	customExpander.SetVar("ARCHIVE_DIR", tempDir)
 
-	outputFilenameTemplate := config.OutputFilenameTemplate
+	outputFilenameTemplate := output.Packaging.FilenameTemplate
+	if outputFilenameTemplate == "" {
+		outputFilenameTemplate = config.Packaging.FilenameTemplate
+	}
 	if outputFilenameTemplate == "" {
 		outputFilenameTemplate = defaultOutputFilenameTemplate
 	}
 
+	packagingCustomExpander := customExpander.Clone()
+	packagingCustomExpander.SetVars(output.Packaging.Env)
+	outputFilename := packagingCustomExpander.Expand(outputFilenameTemplate)
+
 	for _, packager := range config.Packagers {
-		outputPath := filepath.Join("build", customExpander.Expand(outputFilenameTemplate)+"."+packager)
+		outputPath := filepath.Join("build", outputFilename+"."+packager)
 		err = os.MkdirAll(filepath.Dir(outputPath), 0755)
 		if err != nil {
 			return err
@@ -108,7 +117,7 @@ func doOutput(ctx context.Context, config *Configuration, output Output) error {
 
 		var envList []string
 		envList = append(envList, os.Environ()...)
-		envList = append(envList, customExpander.Environ()...)
+		envList = append(envList, packagingCustomExpander.Environ()...)
 
 		cmd := exec.CommandContext(ctx, "nfpm", "package",
 			"--packager", packager,

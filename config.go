@@ -7,17 +7,36 @@ import (
 )
 
 type Configuration struct {
-	Name                   string   `yaml:"name"`
-	DownloadUrlTemplate    string   `yaml:"download_url_template"`
-	StripComponents        int      `yaml:"strip_components"`
-	OutputFilenameTemplate string   `yaml:"output_filename_template"`
-	Outputs                []Output `yaml:"outputs"`
-	Packagers              []string `yaml:"packagers"`
+	Name            string              `yaml:"name"`
+	Download        DownloadBaseConfig  `yaml:"download"`
+	StripComponents int                 `yaml:"strip_components"`
+	Packaging       PackagingBaseConfig `yaml:"packaging"`
+	Packagers       []string            `yaml:"packagers"`
+	Outputs         []Output            `yaml:"outputs"`
 }
 
 type Output struct {
-	Arch string `yaml:"arch"`
-	Url  string `yaml:"url"`
+	Arch      string          `yaml:"arch"`
+	Download  DownloadConfig  `yaml:"download"`
+	Packaging PackagingConfig `yaml:"packaging"`
+}
+
+type DownloadBaseConfig struct {
+	UrlTemplate string `yaml:"url_template"`
+}
+
+type DownloadConfig struct {
+	UrlTemplate string            `yaml:"url_template"`
+	Env         map[string]string `yaml:"env"`
+}
+
+type PackagingBaseConfig struct {
+	FilenameTemplate string `yaml:"filename_template"`
+}
+
+type PackagingConfig struct {
+	FilenameTemplate string            `yaml:"filename_template"`
+	Env              map[string]string `yaml:"env"`
 }
 
 func LoadConfiguration(r io.Reader) (*Configuration, error) {
