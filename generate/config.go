@@ -14,7 +14,9 @@ type Config struct {
 }
 
 type RepositoryConfig struct {
-	Dir      string          `yaml:"dir"`
+	Source   string          `yaml:"source"`
+	Version  string          `yaml:"version"`
+	Type     string          `yaml:"type"`
 	Packages []PackageConfig `yaml:"packages"`
 }
 
