@@ -25,6 +25,13 @@ var (
 		},
 	}
 
+	outputDirFlag = &cli.StringFlag{
+		Name:    "output-dir",
+		Usage:   "output directory",
+		Value:   "build",
+		Sources: cli.EnvVars("OUTPUT_DIR"),
+	}
+
 	app = &cli.Command{
 		Name:    "nfpm-helper",
 		Usage:   "nfpm helper",
@@ -34,6 +41,9 @@ var (
 				Name:   "build",
 				Usage:  "build",
 				Action: doBuild,
+				Flags: []cli.Flag{
+					outputDirFlag,
+				},
 			},
 		},
 		Flags: []cli.Flag{

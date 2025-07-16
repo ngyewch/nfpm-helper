@@ -25,6 +25,7 @@ func doBuild(ctx context.Context, cmd *cli.Command) error {
 	if version == "" {
 		return fmt.Errorf("VERSION environment variable is not set")
 	}
+	outputDir := cmd.String(outputDirFlag.Name)
 
 	config, err := LoadConfigurationFromFile("nfpm-helper.yml")
 	if err != nil {
@@ -36,7 +37,7 @@ func doBuild(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	for _, output := range config.Outputs {
-		err = doOutput(ctx, config, output)
+		err = doOutput(ctx, config, outputDir, output)
 		if err != nil {
 			return err
 		}
@@ -45,7 +46,7 @@ func doBuild(ctx context.Context, cmd *cli.Command) error {
 	return nil
 }
 
-func doOutput(ctx context.Context, config *Configuration, output Output) error {
+func doOutput(ctx context.Context, config *Configuration, outputDir string, output Output) error {
 	fmt.Printf("Packaging %s\n", output.Arch)
 
 	customExpander := NewCustomExpander()
@@ -109,7 +110,7 @@ func doOutput(ctx context.Context, config *Configuration, output Output) error {
 	outputFilename := packagingCustomExpander.Expand(outputFilenameTemplate)
 
 	for _, packager := range config.Packagers {
-		outputPath := filepath.Join("build", outputFilename+"."+packager)
+		outputPath := filepath.Join(outputDir, outputFilename+"."+packager)
 		err = os.MkdirAll(filepath.Dir(outputPath), 0755)
 		if err != nil {
 			return err
