@@ -38,9 +38,10 @@ var (
 		Version: version,
 		Commands: []*cli.Command{
 			{
-				Name:   "build",
-				Usage:  "build",
-				Action: doBuild,
+				Name:      "build",
+				Usage:     "build",
+				ArgsUsage: "[(directory)]",
+				Action:    doBuild,
 				Flags: []cli.Flag{
 					outputDirFlag,
 				},

@@ -21,10 +21,19 @@ const (
 )
 
 func doBuild(ctx context.Context, cmd *cli.Command) error {
+	workingDir := cmd.Args().First()
+	if workingDir != "" {
+		err := os.Chdir(workingDir)
+		if err != nil {
+			return err
+		}
+	}
+
 	version := os.Getenv("VERSION")
 	if version == "" {
 		return fmt.Errorf("VERSION environment variable is not set")
 	}
+
 	outputDir := cmd.String(outputDirFlag.Name)
 
 	config, err := LoadConfigurationFromFile("nfpm-helper.yml")
