@@ -23,15 +23,29 @@ const (
 type Builder struct {
 	Config    Configuration
 	Version   string
+	Archs     []string
 	Packagers []string
 	OutputDir string
 }
 
 func (builder *Builder) Build(ctx context.Context) error {
-	for _, output := range builder.Config.Outputs {
-		err := builder.buildOutput(ctx, output)
-		if err != nil {
-			return err
+	if len(builder.Archs) == 0 {
+		return fmt.Errorf("no archs specified")
+	}
+	for _, arch := range builder.Archs {
+		matched := false
+		for _, output := range builder.Config.Outputs {
+			if output.Arch == arch {
+				err := builder.buildOutput(ctx, output)
+				if err != nil {
+					return err
+				}
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			return fmt.Errorf("arch %s is not supported", arch)
 		}
 	}
 	return nil

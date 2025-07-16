@@ -37,6 +37,12 @@ var (
 		Required: true,
 		Sources:  cli.EnvVars("VERSION"),
 	}
+	archsFlags = &cli.StringSliceFlag{
+		Name:     "archs",
+		Usage:    "archs",
+		Required: true,
+		Sources:  cli.EnvVars("ARCHS"),
+	}
 	packagersFlags = &cli.StringSliceFlag{
 		Name:    "packagers",
 		Usage:   "packagers",
@@ -57,6 +63,7 @@ var (
 				Flags: []cli.Flag{
 					outputDirFlag,
 					versionFlag,
+					archsFlags,
 					packagersFlags,
 				},
 			},

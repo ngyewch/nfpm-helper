@@ -16,7 +16,8 @@ func doBuild(ctx context.Context, cmd *cli.Command) error {
 		}
 	}
 
-	version := cmd.String(versionFlag.String())
+	version := cmd.String(versionFlag.Name)
+	archs := cmd.StringSlice(archsFlags.Name)
 	packagers := cmd.StringSlice(packagersFlags.Name)
 	outputDir := cmd.String(outputDirFlag.Name)
 
@@ -29,6 +30,7 @@ func doBuild(ctx context.Context, cmd *cli.Command) error {
 	builder := &build.Builder{
 		Config:    config,
 		Version:   version,
+		Archs:     archs,
 		Packagers: packagers,
 		OutputDir: outputDir,
 	}
