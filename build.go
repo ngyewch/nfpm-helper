@@ -140,7 +140,7 @@ func download(ctx context.Context, releaseUrl string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	cachePath := filepath.Join(xdg.CacheHome, "nfpm-helper", u.Host, u.Path)
+	cachePath := filepath.Join(xdg.CacheHome, "nfpm-helper", "downloads", u.Host, u.Path)
 	_, err = os.Stat(cachePath)
 	if os.IsNotExist(err) {
 		httpResponse, err := http.Get(releaseUrl)
