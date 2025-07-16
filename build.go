@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/ngyewch/nfpm-helper/build"
+	"github.com/ngyewch/nfpm-helper/utils"
 	"github.com/urfave/cli/v3"
 	"os"
 )
@@ -21,8 +22,8 @@ func doBuild(ctx context.Context, cmd *cli.Command) error {
 	packagers := cmd.StringSlice(packagersFlags.Name)
 	outputDir := cmd.String(outputDirFlag.Name)
 
-	var config build.Configuration
-	err := LoadConfigurationFromFile("nfpm-helper.yml", &config)
+	var config build.Config
+	err := utils.LoadConfigurationFromFile("nfpm-helper.yml", &config)
 	if err != nil {
 		return err
 	}

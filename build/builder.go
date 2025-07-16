@@ -21,7 +21,7 @@ const (
 )
 
 type Builder struct {
-	Config    Configuration
+	Config    Config
 	Version   string
 	Archs     []string
 	Packagers []string
@@ -56,7 +56,7 @@ func (builder *Builder) buildOutput(ctx context.Context, output Output) error {
 
 	customExpander := utils.NewCustomExpander()
 	customExpander.SetVar("NAME", builder.Config.Name)
-	customExpander.SetVar("VERSION", os.Getenv("VERSION"))
+	customExpander.SetVar("VERSION", builder.Version)
 	customExpander.SetVar("ARCH", output.Arch)
 
 	downloadUrlTemplate := output.Download.UrlTemplate
@@ -149,6 +149,7 @@ func download(ctx context.Context, releaseUrl string) (string, error) {
 	cachePath := filepath.Join(xdg.CacheHome, "nfpm-helper", "downloads", u.Host, u.Path)
 	_, err = os.Stat(cachePath)
 	if os.IsNotExist(err) {
+		fmt.Printf("Downloading %s\n", releaseUrl)
 		httpResponse, err := http.Get(releaseUrl)
 		if err != nil {
 			return "", err
@@ -174,7 +175,6 @@ func download(ctx context.Context, releaseUrl string) (string, error) {
 			_ = f.Close()
 		}(f)
 
-		fmt.Printf("Downloading %s\n", releaseUrl)
 		bar := progressbar.DefaultBytes(
 			httpResponse.ContentLength,
 			"",

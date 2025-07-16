@@ -67,6 +67,15 @@ var (
 					packagersFlags,
 				},
 			},
+			{
+				Name:   "generate",
+				Usage:  "generate",
+				Action: doGenerate,
+				Flags: []cli.Flag{
+					outputDirFlag,
+					packagersFlags,
+				},
+			},
 		},
 		Flags: []cli.Flag{
 			logLevelFlag,

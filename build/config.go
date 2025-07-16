@@ -1,6 +1,6 @@
 package build
 
-type Configuration struct {
+type Config struct {
 	Name            string              `yaml:"name"`
 	Download        DownloadBaseConfig  `yaml:"download"`
 	StripComponents int                 `yaml:"strip_components"`
