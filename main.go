@@ -31,6 +31,18 @@ var (
 		Value:   "build",
 		Sources: cli.EnvVars("OUTPUT_DIR"),
 	}
+	versionFlag = &cli.StringFlag{
+		Name:     "version",
+		Usage:    "version",
+		Required: true,
+		Sources:  cli.EnvVars("VERSION"),
+	}
+	packagersFlags = &cli.StringSliceFlag{
+		Name:    "packagers",
+		Usage:   "packagers",
+		Value:   []string{"deb", "rpm"},
+		Sources: cli.EnvVars("PACKAGERS"),
+	}
 
 	app = &cli.Command{
 		Name:    "nfpm-helper",
@@ -44,6 +56,8 @@ var (
 				Action:    doBuild,
 				Flags: []cli.Flag{
 					outputDirFlag,
+					versionFlag,
+					packagersFlags,
 				},
 			},
 		},
