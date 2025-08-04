@@ -13,9 +13,10 @@ import (
 )
 
 type Generator struct {
-	Config    Config
-	Packagers []string
-	OutputDir string
+	Config               Config
+	Packagers            []string
+	OutputDir            string
+	CreateSubdirectories bool
 }
 
 func (generator *Generator) Generate(ctx context.Context) error {
@@ -150,12 +151,19 @@ func (generator *Generator) Generate(ctx context.Context) error {
 					if len(pkg.Packagers) > 0 {
 						packagers = pkg.Packagers
 					}
+					outputDir := generator.OutputDir
+					checksumAlgorithm := ""
+					if generator.CreateSubdirectories {
+						outputDir = filepath.Join(outputDir, pkg.Name, pkg.Version)
+						checksumAlgorithm = "sha256"
+					}
 					builder := &build.Builder{
-						Config:    buildConfig,
-						Version:   pkg.Version,
-						Archs:     pkg.Archs,
-						Packagers: packagers,
-						OutputDir: generator.OutputDir,
+						Config:            buildConfig,
+						Version:           pkg.Version,
+						Archs:             pkg.Archs,
+						Packagers:         packagers,
+						OutputDir:         outputDir,
+						ChecksumAlgorithm: checksumAlgorithm,
 					}
 					err = builder.Build(ctx)
 					if err != nil {

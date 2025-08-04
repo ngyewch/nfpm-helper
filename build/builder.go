@@ -2,12 +2,16 @@ package build
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"github.com/adrg/xdg"
 	"github.com/codeclysm/extract/v4"
 	"github.com/ngyewch/nfpm-helper/utils"
 	"github.com/schollz/progressbar/v3"
+	"hash"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/url"
 	"os"
@@ -21,11 +25,12 @@ const (
 )
 
 type Builder struct {
-	Config    Config
-	Version   string
-	Archs     []string
-	Packagers []string
-	OutputDir string
+	Config            Config
+	Version           string
+	Archs             []string
+	Packagers         []string
+	OutputDir         string
+	ChecksumAlgorithm string
 }
 
 func (builder *Builder) Build(ctx context.Context) error {
@@ -48,6 +53,57 @@ func (builder *Builder) Build(ctx context.Context) error {
 			return fmt.Errorf("arch %s is not supported", arch)
 		}
 	}
+
+	if builder.ChecksumAlgorithm != "" {
+		var checksumPath string
+		switch builder.ChecksumAlgorithm {
+		case "sha256":
+			checksumPath = filepath.Join(builder.OutputDir, "SHA256SUM.txt")
+		default:
+			return fmt.Errorf(`invalid checksum algorithm "%s"`, builder.ChecksumAlgorithm)
+		}
+
+		f, err := os.Create(checksumPath)
+		if err != nil {
+			return err
+		}
+		defer func(f *os.File) {
+			_ = f.Close()
+		}(f)
+
+		err = filepath.WalkDir(builder.OutputDir, func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			if d.IsDir() {
+				return nil
+			}
+
+			if path == checksumPath {
+				return nil
+			}
+
+			checksum, err := calcFileChecksum(path, builder.ChecksumAlgorithm)
+			if err != nil {
+				return err
+			}
+
+			relPath, err := filepath.Rel(builder.OutputDir, path)
+			if err != nil {
+				return err
+			}
+			_, err = fmt.Fprintf(f, "%s *%s\n", hex.EncodeToString(checksum), relPath)
+			if err != nil {
+				return err
+			}
+
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -139,6 +195,32 @@ func (builder *Builder) buildOutput(ctx context.Context, output Output) error {
 
 	fmt.Println()
 	return nil
+}
+
+func calcFileChecksum(path string, algorithm string) ([]byte, error) {
+	var h hash.Hash
+
+	switch algorithm {
+	case "sha256":
+		h = sha256.New()
+	default:
+		return nil, fmt.Errorf("unknown checksum algorithm: %s", algorithm)
+	}
+
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer func(f *os.File) {
+		_ = f.Close()
+	}(f)
+
+	_, err = io.Copy(h, f)
+	if err != nil {
+		return nil, err
+	}
+
+	return h.Sum(nil), nil
 }
 
 func download(ctx context.Context, releaseUrl string) (string, error) {

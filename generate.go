@@ -10,6 +10,7 @@ import (
 func doGenerate(ctx context.Context, cmd *cli.Command) error {
 	packagers := cmd.StringSlice(packagersFlags.Name)
 	outputDir := cmd.String(outputDirFlag.Name)
+	createSubdirectories := cmd.Bool(createSubdirectoriesFlag.Name)
 
 	var config generate.Config
 	err := utils.LoadConfigurationFromFile("nfpm-helper.gen.yml", &config)
@@ -18,9 +19,10 @@ func doGenerate(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	generator := &generate.Generator{
-		Config:    config,
-		Packagers: packagers,
-		OutputDir: outputDir,
+		Config:               config,
+		Packagers:            packagers,
+		OutputDir:            outputDir,
+		CreateSubdirectories: createSubdirectories,
 	}
 
 	return generator.Generate(ctx)

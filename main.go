@@ -49,6 +49,12 @@ var (
 		Value:   []string{"deb", "rpm"},
 		Sources: cli.EnvVars("PACKAGERS"),
 	}
+	createSubdirectoriesFlag = &cli.BoolFlag{
+		Name:    "create-subdirectories",
+		Aliases: []string{"create-subdirs"},
+		Usage:   "create subdirectories",
+		Sources: cli.EnvVars("CREATE_SUBDIRECTORIES", "CREATE_SUBDIRS"),
+	}
 
 	app = &cli.Command{
 		Name:    "nfpm-helper",
@@ -74,6 +80,7 @@ var (
 				Flags: []cli.Flag{
 					outputDirFlag,
 					packagersFlags,
+					createSubdirectoriesFlag,
 				},
 			},
 		},
