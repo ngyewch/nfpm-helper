@@ -10,7 +10,7 @@ require (
 	github.com/goccy/go-yaml v1.18.0
 	github.com/ngyewch/go-clibase v1.6.0
 	github.com/schollz/progressbar/v3 v3.18.0
-	github.com/urfave/cli/v3 v3.3.8
+	github.com/urfave/cli/v3 v3.4.1
 )
 
 require (
