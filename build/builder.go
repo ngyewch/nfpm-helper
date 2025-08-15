@@ -5,10 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"github.com/adrg/xdg"
-	"github.com/codeclysm/extract/v4"
-	"github.com/ngyewch/nfpm-helper/utils"
-	"github.com/schollz/progressbar/v3"
 	"hash"
 	"io"
 	"io/fs"
@@ -18,6 +14,11 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/adrg/xdg"
+	"github.com/codeclysm/extract/v4"
+	"github.com/ngyewch/nfpm-helper/utils"
+	"github.com/schollz/progressbar/v3"
 )
 
 const (
@@ -143,18 +144,41 @@ func (builder *Builder) buildOutput(ctx context.Context, output Output) error {
 		_ = f.Close()
 	}(f)
 
-	var renamer extract.Renamer
+	if strings.HasSuffix(cachePath, ".zip") ||
+		strings.HasSuffix(cachePath, ".gz") ||
+		strings.HasSuffix(cachePath, ".bz2") ||
+		strings.HasSuffix(cachePath, ".xz") ||
+		strings.HasSuffix(cachePath, ".zst") ||
+		strings.HasSuffix(cachePath, ".tar") {
+		var renamer extract.Renamer
 
-	if builder.Config.StripComponents > 0 {
-		renamer = func(p string) string {
-			parts := strings.Split(p, "/")
-			return strings.Join(parts[builder.Config.StripComponents:], "/")
+		if builder.Config.StripComponents > 0 {
+			renamer = func(p string) string {
+				parts := strings.Split(p, "/")
+				return strings.Join(parts[builder.Config.StripComponents:], "/")
+			}
 		}
-	}
 
-	err = extract.Archive(ctx, f, tempDir, renamer)
-	if err != nil {
-		return err
+		err = extract.Archive(ctx, f, tempDir, renamer)
+		if err != nil {
+			return err
+		}
+	} else {
+		targetFile, err := os.Create(filepath.Join(tempDir, builder.Config.Name))
+		if err != nil {
+			return err
+		}
+		defer func(targetFile *os.File) {
+			_ = targetFile.Close()
+		}(targetFile)
+		_, err = io.Copy(targetFile, f)
+		if err != nil {
+			return err
+		}
+		err = targetFile.Close()
+		if err != nil {
+			return err
+		}
 	}
 	customExpander.SetVar("ARCHIVE_DIR", tempDir)
 
