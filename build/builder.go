@@ -175,10 +175,15 @@ func (builder *Builder) buildOutput(ctx context.Context, output Output) error {
 		if err != nil {
 			return err
 		}
+		err = targetFile.Chmod(0755)
+		if err != nil {
+			return err
+		}
 		err = targetFile.Close()
 		if err != nil {
 			return err
 		}
+
 	}
 	customExpander.SetVar("ARCHIVE_DIR", tempDir)
 
