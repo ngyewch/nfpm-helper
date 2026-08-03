@@ -6,11 +6,11 @@ require (
 	github.com/adrg/xdg v0.5.3
 	github.com/boyter/gocodewalker v1.5.1
 	github.com/codeclysm/extract/v4 v4.0.0
-	github.com/go-git/go-git/v5 v5.19.1
+	github.com/go-git/go-git/v5 v5.19.2
 	github.com/goccy/go-yaml v1.19.2
 	github.com/ngyewch/go-clibase v1.6.0
-	github.com/schollz/progressbar/v3 v3.19.0
-	github.com/urfave/cli/v3 v3.9.0
+	github.com/schollz/progressbar/v3 v3.19.1
+	github.com/urfave/cli/v3 v3.10.1
 )
 
 require (
@@ -38,11 +38,11 @@ require (
 	github.com/skeema/knownhosts v1.3.1 // indirect
 	github.com/ulikunitz/xz v0.5.12 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
-	golang.org/x/crypto v0.50.0 // indirect
-	golang.org/x/net v0.53.0 // indirect
+	golang.org/x/crypto v0.53.0 // indirect
+	golang.org/x/net v0.56.0 // indirect
 	golang.org/x/sync v0.12.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
-	golang.org/x/term v0.42.0 // indirect
+	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/term v0.44.0 // indirect
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )
